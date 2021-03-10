@@ -1,10 +1,11 @@
-require([
+ require([
       "esri/WebScene",
       "esri/views/SceneView",
       "esri/Camera",
       "esri/widgets/Home",
+      "esri/widgets/Legend",
       "dojo/domReady!"
-    ], function(WebScene, SceneView, Camera, Home) {
+    ], function(WebScene, SceneView, Camera, Home, Legend) {
 
     
       /*var map = new Map({
@@ -13,59 +14,25 @@ require([
       });*/
       var scene = new WebScene({
         portalItem:{
-         id:"8046207c1c214b5587230f5e5f8efc77" 
+         id:"6092871122084a38936bfef10e118653" 
         }
       });
       
-      // initial camera 
       var camera = new Camera({
         position: [
-           -71.060217,
-          42.358,
-          1500// elevation in meters
-        ],
-        tilt:45,
-        heading: 0
-      })
-      
-      // add camera for a more centered downtown view
-      var camera2 = new Camera({
-        position: [
-           -71.060217,
-          42.329,
-          2000// elevation in meters
-        ],
-        tilt:30,
-        heading: 10
-      })
-      
-      // add camera to view downtown Boston from Ocean
-      var camera3 = new Camera({
-        position: [
-           -71.00,
-          42.335,
-          1000// elevation in meters
-        ],
-        tilt:70,
-        heading: -60
-      })
-      
-      // add camera for home button
-      var homecamera = new Camera({
-        position: [
-           -71.1167,
-          42.3770,
-          150000// elevation in meters
+         -90.20, // lon
+         38.65, // lat
+          8000000// elevation in meters
         ],
         tilt:0,
         heading: 0
-      });
+      }) 
 
       var view = new SceneView({
         container: "viewDiv",
         map: scene,
-        viewingMode:"global", //an error would pop up saying Boston major projects - MajorProjectsBuildings cannot be added, Geographic coordinate systems are not supported for a Scene Layer in local scenes.
-        camera: homecamera,
+        viewingMode:"global",
+        camera: camera,
         environment: {
             lighting: {
               date: new Date(),
@@ -77,39 +44,56 @@ require([
         },
     });
     
-    var homeBtn = new Home({
+   var homeBtn = new Home({
         view: view
-      });
-
-      // Add the home button to the top left corner of the view
+      }); //Add the home button to the top left corner of the view
     view.ui.add(homeBtn, "top-left");
     
-    [bos, bos2, bosDT].forEach(function(button) {
+    [MO, FL].forEach(function(button) {
       button.style.display = 'flex';
       view.ui.add(button, 'top-right');
     });
     
-    bos.addEventListener('click', function() {
+    MO.addEventListener('click', function() {
       // reuse the default camera position already established in the homeBtn
       view.goTo({
-        target:camera
-      });
-    });
-  
-    bos2.addEventListener('click', function() {
-      // reuse the default camera position already established in the homeBtn
-      view.goTo({
-        target:camera2
-      });
-    });
-    
-      
-   bosDT.addEventListener('click', function() {
-      // reuse the default camera position already established in the homeBtn
-      view.goTo({
-        target:camera3
+        position: {
+          x: -91.83,
+          y: 37.96,
+          z: 2500000
+        },
+        tilt: 0,
+        heading: 0
       });
     }); 
+   
+     FL.addEventListener('click', function() {
+      // reuse the default camera position already established in the homeBtn
+      view.goTo({
+        position: {
+          x: -81.51,
+          y: 27.66,
+          z: 2500000
+        },
+        tilt: 0,
+        heading: 0
+      });
+    });
 
+  view.when(function() {
+     
+    var featureLayer = scene.layers.getItemAt(0);
+
+          var legend = new Legend({
+            view: view,
+            layerInfos: [{
+              layer: featureLayer,
+              title: "Tornado"
+            }]
+          });
+
+          // Add widget to the bottom right corner of the view
+          view.ui.add(legend, "bottom-right");
+        });
 
     });
